@@ -17,6 +17,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var pageControl: UIPageControl!
     
     var showingIndex: Int = 0
+    var timer: NSTimer!
     
     let imageData = [UIImage(named: "0")!, UIImage(named: "1")!, UIImage(named: "2")!, UIImage(named: "3")!]
     
@@ -24,16 +25,12 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         super.viewDidAppear(animated)
         pageControl.numberOfPages = imageData.count
         scrollView.scrollRectToVisible(currentView.frame, animated: false)
+        
+        timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "tick:", userInfo: nil, repeats: true)
     }
     
-    func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
-        let viewIndex = lround(Double(scrollView.contentOffset.x / CGRectGetWidth(scrollView.frame)));
-        if viewIndex == 2 {
-            showingIndex++
-        } else if viewIndex == 0 {
-            showingIndex--
-        }
-        
+    private func updateImages(index: Int) {
+        showingIndex = index;
         if showingIndex < 0 {
             showingIndex = imageData.count - 1
         } else if showingIndex >= imageData.count {
@@ -55,6 +52,33 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         previousView.image = imageData[previousIndex]
         
         scrollView.scrollRectToVisible(currentView.frame, animated: false)
+    }
+    
+    func tick(timer: NSTimer) {
+        showingIndex++
+        scrollView.scrollRectToVisible(nextView.frame, animated: true)
+    }
+    
+    func scrollViewWillBeginDecelerating(scrollView: UIScrollView) {
+        timer.invalidate()
+    }
+    
+    func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
+        let viewIndex = lround(Double(scrollView.contentOffset.x / CGRectGetWidth(scrollView.frame)));
+        if viewIndex == 2 {
+            showingIndex++
+        } else if viewIndex == 0 {
+            showingIndex--
+        }
+        
+        updateImages(showingIndex)
+        if !timer.valid {
+            timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "tick:", userInfo: nil, repeats: true)
+        }
+    }
+    
+    func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
+        updateImages(showingIndex)
     }
 }
 
