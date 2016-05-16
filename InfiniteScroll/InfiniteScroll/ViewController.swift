@@ -18,6 +18,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     
     var showingIndex: Int = 0
     var timer: NSTimer!
+    var timeInterval: NSTimeInterval = 5
     
     let imageData = [UIImage(named: "0")!, UIImage(named: "1")!, UIImage(named: "2")!, UIImage(named: "3")!]
     
@@ -26,7 +27,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         pageControl.numberOfPages = imageData.count
         scrollView.scrollRectToVisible(currentView.frame, animated: false)
         
-        timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "tick:", userInfo: nil, repeats: true)
+        timer = NSTimer.scheduledTimerWithTimeInterval(timeInterval, target: self, selector: #selector(ViewController.tick(_:)), userInfo: nil, repeats: true)
     }
     
     private func updateImages(index: Int) {
@@ -55,7 +56,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     }
     
     func tick(timer: NSTimer) {
-        showingIndex++
+        showingIndex += 1
         scrollView.scrollRectToVisible(nextView.frame, animated: true)
     }
     
@@ -66,14 +67,14 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
         let viewIndex = lround(Double(scrollView.contentOffset.x / CGRectGetWidth(scrollView.frame)));
         if viewIndex == 2 {
-            showingIndex++
+            showingIndex += 1
         } else if viewIndex == 0 {
-            showingIndex--
+            showingIndex -= 1
         }
         
         updateImages(showingIndex)
         if !timer.valid {
-            timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "tick:", userInfo: nil, repeats: true)
+            timer = NSTimer.scheduledTimerWithTimeInterval(timeInterval, target: self, selector: #selector(ViewController.tick(_:)), userInfo: nil, repeats: true)
         }
     }
     
